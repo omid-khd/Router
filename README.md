@@ -2,7 +2,10 @@
 A package for routing http requests
 
 ##usage
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 ```php
 require 'path/to/vendor/autoload.php';
 
@@ -23,6 +26,7 @@ $request = Request::createFromGlobals();
 
 $matchedRoute = $router->match($request);
 ```
+<<<<<<< HEAD
 
 other methods for adding a route:
 
@@ -52,3 +56,5 @@ $router->get(
 	['user' => '\d+', 'section' => '[a-zA-Z0-9_-]']
 );
 ```
+=======
+>>>>>>> origin/master
