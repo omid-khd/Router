@@ -1,0 +1,25 @@
+{
+    "name": "desa/router",
+    "description": "Router for routing and dispatching url",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "omid.khadem",
+            "email": "khadem.omid@gmail.com"
+        }
+    ],
+	"repositories": [
+        {
+            "type": "artifact",
+            "url" : "F:/Desa/plugins/PHP"
+        }
+    ],
+    "require": {
+        "symfony/http-foundation": "^2.7"
+    },
+	"autoload": {
+		"psr-4": {
+			"Desa\\Router\\": "src"
+		}
+	}
+}
