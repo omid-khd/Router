@@ -6,13 +6,6 @@ use InvalidArgumentException;
 use Desa\Router\RouteInterface;
 use Desa\Router\Exceptions\BadMethodException;
 
-/**
- *
- *
- *
- *
- *
- */
 class Route implements RouteInterface
 {
     /**
@@ -38,7 +31,7 @@ class Route implements RouteInterface
     /**
      * @var array
      */
-    protected $routeParameters = [];
+    protected $routeParameters;
 
     /**
      * @var string
@@ -48,45 +41,51 @@ class Route implements RouteInterface
     /**
      * @var array
      */
-    protected $parametersCondition = [];
+    protected $parametersCondition;
 
     /**
-     *
+     * @var array
+     */
+    private $allowedHttpMethods;
+
+    /**
+     * Route constructor.
      *
      * @param array $arguments
-     *
-     * @return void
      */
     public function __construct(array $arguments)
     {
+        $this->parametersCondition = $this->routeParameters = [];
+        $this->allowedHttpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+
         $path = $arguments['path'];
         $callback = $arguments['callback'];
         $methods = isset($arguments['methods']) ? $arguments['methods'] : ['GET'];
-        $requirments = isset($arguments['requirments']) ? $arguments['requirments'] : null;
+        $requirements = isset($arguments['requirements']) ? $arguments['requirements'] : null;
 
         $this->setMethods($methods);
         $this->setPath($path);
         $this->setCallback($callback);
         $this->extractParameters($path);
 
-        if ($requirments) {
-            $this->setRequirments($requirments);
+        if ($requirements) {
+            $this->setRequirements($requirements);
         }
 
         $this->compileRoute();
     }
 
     /**
+     * Sets http methods for route
      *
+     * @param array $methods
      *
-     * @param string $methods
-     *
-     * @return $this
+     * @throws BadMethodException
      */
     protected function setMethods(array $methods)
     {
         foreach ($methods as $method) {
-            if (!in_array(strtoupper($method), ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            if (!in_array(strtoupper($method), $this->allowedHttpMethods, true)) {
                 $msg = sprintf('Method %s is not allowed.', strtoupper($method));
                 throw new BadMethodException($msg);
             }
@@ -104,7 +103,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Sets path of the route
      *
      * @param string $path
      *
@@ -116,7 +115,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * Return the path of the route
+     * Gets path of the route
      *
      * @return string
      */
@@ -126,7 +125,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Sets routes callback
      *
      * @param Callable $callback
      *
@@ -146,8 +145,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
-     *
+     * Compile route
      *
      * @return void
      */
@@ -162,27 +160,27 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Builds route regex pattern
      *
      * @param array $pathStaticParts
      *
      * @return string
      */
-    protected function buildRegexPattern($pathStaticParts)
+    protected function buildRegexPattern(array $pathStaticParts)
     {
         $pattern = '';
 
         if (!empty($this->routeParameters)) {
             foreach ($this->routeParameters as $parameter) {
-                $parameterRequirment = $this->getRequirment($parameter);
+                $parameterRequirement = $this->getRequirement($parameter);
 
                 $pattern .= array_shift($pathStaticParts);
 
-                if (!$this->isOptionalParameter($parameter)) {
-                    $pattern .= "($parameterRequirment)";
-                } else {
+                if ($this->isOptionalParameter($parameter)) {
                     $pattern = rtrim($pattern, '/');
-                    $pattern .= "(?:/|/($parameterRequirment)?)?";
+                    $pattern .= "(?:/|/($parameterRequirement)?)?";
+                } else {
+                    $pattern .= "($parameterRequirement)";
                 }
             }
             // if after last route parameter there is static parts we attach the them together
@@ -198,7 +196,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Determine if given route parameter is optional or not
      *
      * @param string $parameter
      *
@@ -210,7 +208,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Extracts route parameters from given path
      *
      * @param string $path
      *
@@ -219,8 +217,8 @@ class Route implements RouteInterface
     protected function extractParameters($path)
     {
         $parameters = preg_match_all('`{(?P<parameters>\w+)}`', $path, $matches)
-            ? $matches['parameters']
-            : null;
+                    ? $matches['parameters']
+                    : null;
 
         if ($parameters) {
             $this->setParameters($parameters);
@@ -228,7 +226,7 @@ class Route implements RouteInterface
     }
 
     /**
-     *
+     * Set route parameters
      *
      * @param array $parameters
      *
@@ -260,9 +258,9 @@ class Route implements RouteInterface
     }
 
     /**
+     * Sets route regex pattern
      *
-     *
-     * @param stringtern
+     * @param string $pattern
      *
      * @return $this
      */
@@ -280,52 +278,52 @@ class Route implements RouteInterface
     }
 
     /**
+     * Sets route requirements
      *
-     *
-     * @param array $requirments
+     * @param array $requirements
      *
      * @return $this
      */
-    protected function setRequirments(array $requirments)
+    protected function setRequirements(array $requirements)
     {
-        foreach ($requirments as $parameter => $requirment) {
-            if (!is_string($parameter) || !is_string($requirment)) {
+        foreach ($requirements as $parameter => $requirement) {
+            if (!is_string($parameter) || !is_string($requirement)) {
                 $msg = sprintf(
                     'All keys and values in provided argument must be string. provided key : %s and value : %s .',
                     $parameter,
-                    $requirment
+                    $requirement
                 );
                 throw new InvalidArgumentException($msg);
             }
 
-            $this->setRequirment($parameter, $requirment);
+            $this->setRequirement($parameter, $requirement);
         }
     }
 
     /**
-     *
+     * Sets route requirements
      *
      * @param string $parameter
-     * @param string $requirments
+     * @param        $requirement
      *
-     * @return $this
+     * @return void
      */
-    protected function setRequirment($parameter, $requirment)
+    protected function setRequirement($parameter, $requirement)
     {
         if (in_array($parameter, $this->routeParameters, true)) {
-            $this->parametersCondition[$parameter] = $requirment;
+            $this->parametersCondition[$parameter] = $requirement;
         }
     }
 
     /**
-     *
+     * Gets route requirements
      *
      * @param string $parameter
      * @param string $default
      *
      * @return string
      */
-    public function getRequirment($parameter, $default = '[^/]+')
+    public function getRequirement($parameter, $default = '[^/]+')
     {
         if (in_array($parameter, $this->routeParameters, true) && isset($this->parametersCondition[$parameter])) {
             return $this->parametersCondition[$parameter];
@@ -335,13 +333,12 @@ class Route implements RouteInterface
     }
     
     /**
+     * Determine if route is static or not
      * 
-     * 
-     * 
-     * @return <type>
+     * @return bool
      */
     public function isStatic()
     {
-        return (bool) preg_match('`{\w+}`', $this->path) === false;;
+        return ((bool) preg_match('`{\w+}`', $this->path)) === false;;
     }
 }

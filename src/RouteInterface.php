@@ -2,27 +2,19 @@
 
 namespace Desa\Router;
 
-/**
- *
- *
- *
- *
- *
- */
 interface RouteInterface
 {
-    
     /**
      * Return the http method associated with route
      * 
-     * @return string
+     * @return array
      */
     public function getMethods();
     
     /**
      * Return the callback that should execute if route is matched
      * 
-     * @return Callable|string|array
+     * @return Callable
      */
     public function getCallback();
     

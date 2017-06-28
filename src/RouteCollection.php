@@ -2,47 +2,53 @@
 
 namespace Desa\Router;
 
-/**
- *
- *
- *
- *
- *
- */
 class RouteCollection implements \IteratorAggregate, \Countable
 {
-    protected $httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
     /**
      * @var array
      */
-    protected $routes = [];
+    protected $routes;
+
+    /**
+     * @var array
+     */
+    protected $httpMethods;
+
+    /**
+     * RouteCollection constructor.
+     */
+    public function __construct()
+    {
+        $this->routes = [];
+        $this->httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+    }
 
     /**
      * Return a route by its name
      *
-     * @param string $key
+     * @param string $name
      *
-     * @return Desa\Router\Route|null
+     * @return mixed
      */
-    public function getRoute($key)
+    public function getRoute($name)
     {
-        if (isset($this->routes[$key])) {
-            return $this->routes[$key];
+        if (isset($this->routes[$name])) {
+            return $this->routes[$name];
         }
     }
 
     /**
-     * 
-     * 
-     * @param <type> $methods 
-     * 
-     * @return <type>
+     * @param $methods
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException
      */
     protected function getMethods($methods)
     {
         if (!is_string($methods) && !is_array($methods)) {
             $msg = sprintf(
-                'Only array and string are allowed for http method. given input type is %s .',
+                'Only array and string are allowed for http method. given input type is "%s" .',
                 gettype($methods)
             );
             throw new \InvalidArgumentException($msg);
@@ -58,11 +64,7 @@ class RouteCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     * 
-     * 
-     * @param <type> $methods 
-     * 
-     * @return <type>
+     * @param array $methods
      */
     protected function validateMethods(array $methods)
     {
@@ -77,13 +79,13 @@ class RouteCollection implements \IteratorAggregate, \Countable
     /**
      *{@inheritdoc}
      */
-    public function addRoute($name, $methods, $path, callable $callback, array $requirments = null)
+    public function addRoute($name, $methods, $path, callable $callback, array $requirements = null)
     {
         $args = [
-            'methods' => $this->getMethods($methods),
-            'path' => $path,
-            'callback' => $callback,
-            'requirments' => $requirments
+            'methods'      => $this->getMethods($methods),
+            'path'         => $path,
+            'callback'     => $callback,
+            'requirements' => $requirements
         ];
 
         $this->routes[$name] = new Route($args);
@@ -94,7 +96,7 @@ class RouteCollection implements \IteratorAggregate, \Countable
      */
     public function removeRoute($name)
     {
-        if (array_key_exists($name, $this->routes)) {
+        if (isset($this->routes[$name])) {
             unset($this->routes[$name]);
         }
     }
@@ -102,66 +104,63 @@ class RouteCollection implements \IteratorAggregate, \Countable
     /**
      *{@inheritdoc}
      */
-    public function any($name, $path, Callable $callback, $requirments = null)
+    public function any($name, $path, Callable $callback, $requirements = null)
     {
-        $this->addRoute($name, $this->httpMethods, $path, $callback, $requirments);
+        $this->addRoute($name, $this->httpMethods, $path, $callback, $requirements);
     }
     
     /**
      *{@inheritdoc}
      */
-    public function except($name, $methods, $path, Callable $callback, $requirments = null)
+    public function except($name, $methods, $path, Callable $callback, $requirements = null)
     {
         $methods = array_diff($this->httpMethods, $this->getMethods($methods));
         
-        $this->addRoute($name, $methods, $path, $callback, $requirments);
+        $this->addRoute($name, $methods, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function get($name, $path, $callback, $requirments = null)
+    public function get($name, $path, $callback, $requirements = null)
     {
-        $this->addRoute($name, 'GET', $path, $callback, $requirments);
+        $this->addRoute($name, 'GET', $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function post($name, $path, $callback, $requirments = null)
+    public function post($name, $path, $callback, $requirements = null)
     {
-        $this->addRoute($name, 'POST', $path, $callback, $requirments);
+        $this->addRoute($name, 'POST', $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function put($name, $path, $callback, $requirments = null)
+    public function put($name, $path, $callback, $requirements = null)
     {
-        $this->addRoute($name, 'PUT', $path, $callback, $requirments);
+        $this->addRoute($name, 'PUT', $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function patch($name, $path, $callback, $requirments = null)
+    public function patch($name, $path, $callback, $requirements = null)
     {
-        $this->addRoute($name, 'PATCH', $path, $callback, $requirments);
+        $this->addRoute($name, 'PATCH', $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function delete($name, $path, $callback, $requirments = null)
+    public function delete($name, $path, $callback, $requirements = null)
     {
-        $this->addRoute($name, 'DELETE', $path, $callback, $requirments);
+        $this->addRoute($name, 'DELETE', $path, $callback, $requirements);
     }
 
     /**
-     *
-     *
-     *
-     * @return ArrayIterator
+     * @inheritdoc
      */
     public function getIterator()
     {
@@ -169,10 +168,7 @@ class RouteCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     *
-     *
-     *
-     * @return int
+     * @inheritdoc
      */
     public function count()
     {

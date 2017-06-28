@@ -4,22 +4,15 @@ namespace Desa\Router;
 
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- *
- *
- *
- *
- *
- */
 interface RouterInterface
 {
     /**
      * Return the route that is matched against http request if any route is matched and
      * false if nothing matched.
      * 
-     * @param Symfony\Component\HttpFoundation\Request $request Http request object
+     * @param Request $request Http request object
      * 
-     * @return Desa\Router\Route|bool
+     * @return Route|bool
      */
     public function match(Request $request);
 }

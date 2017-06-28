@@ -9,16 +9,14 @@ use Desa\Router\Exceptions\RouteNotFoundException;
 class Dispatcher
 {
     /**
-     * @var Desa\Router\Router;
+     * @var Router;
      */
     protected $router;
 
     /**
+     * Dispatcher constructor.
      *
-     *
-     * @param <type> $router
-     *
-     * @return <type>
+     * @param RouterInterface|null $router
      */
     public function __construct(RouterInterface $router = null)
     {
@@ -26,20 +24,19 @@ class Dispatcher
     }
 
     /**
+     * Dispatch request to router and return a response to client
      *
-     *
-     * @param <type> $request
-     *
-     * @return <type>
+     * @param Request $request
      */
     public function dispatch(Request $request)
     {
         try {
             $route = $this->router->match($request);
 
-            if (! $route->isStatic()) {
-                $params = $this->getRouteData($route, $request);
-                $request->attributes->add($params);
+            if (false === $route->isStatic()) {
+                $params = $this->getRouteData($route, $request->getUri());
+
+                $request->attributes->replace($params);
             }
 
             $response = call_user_func($route->getCallback(), $request, new Response);
@@ -48,25 +45,24 @@ class Dispatcher
                 $response = new Response('Not Found', Response::HTTP_NOT_FOUND);
             }
         } catch (RouteNotFoundException $e) {
-            $response = new Response($e->getMessage(), 404);
+            $response = new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            $response = new Response($e->getMessage(), 404);
+            $response = new Response($e->getMessage(), Response::HTTP_NOT_FOUND);
         }
 
         $response->send();
     }
 
     /**
+     * Extracts route parameters values from request uri
      *
+     * @param Route  $route
+     * @param string $uri
      *
-     * @param <type> $route
-     * @param <type> $request
-     *
-     * @return <type>
+     * @return array
      */
-    protected function getRouteData(Route $route, Request $request)
+    protected function getRouteData(Route $route, $uri)
     {
-        $uri = $request->getRequestUri();
         $pattern = '`'.$route->getRegexPattern().'`';
 
         preg_match_all($pattern, $uri, $matches, PREG_SET_ORDER);
@@ -75,14 +71,11 @@ class Dispatcher
         // other entries are matched parameters so we shift first entry of $matches.
         array_shift($matches[0]);
 
-        $params = array_map('urldecode', $matches[0]);
+        $params = $matches[0];
         $routeParams = $route->getParameters();
 
         if (count($params) < count($routeParams)) {
-            $count = count($routeParams) - count($params);
-            for ($i = 0; $i < $count; $i++) {
-                $params[] = null;
-            }
+            $params = array_pad($params, (count($routeParams) - count($params)), null);
         }
 
         return array_combine($routeParams, $params);

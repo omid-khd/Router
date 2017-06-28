@@ -6,26 +6,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Desa\Router\Exceptions\RouteNotFoundException;
 
-/**
- *
- *
- *
- *
- *
- */
 class Router implements RouterInterface, RouteCollectionInterface
 {
     /**
-     * @var Desa\Router\RouteCollection
+     * @var RouteCollection
      */
     protected $routes;
 
     /**
+     * Router constructor.
      *
-     *
-     * @param Desa\Router\RouteCollection $routesCollection
-     *
-     * @return void
+     * @param RouteCollectionInterface|null $routesCollection
      */
     public function __construct(RouteCollectionInterface $routesCollection = null)
     {
@@ -58,9 +49,7 @@ class Router implements RouterInterface, RouteCollectionInterface
     }
 
     /**
-     *
-     *
-     * @param string $method The http request method
+     * @param $method
      *
      * @return string
      */
@@ -90,9 +79,9 @@ class Router implements RouterInterface, RouteCollectionInterface
     /**
      *{@inheritdoc}
      */
-    public function addRoute($name, $method, $path, callable $callback, array $requirments = null)
+    public function addRoute($name, $method, $path, callable $callback, array $requirements = null)
     {
-        $this->routes->addRoute($name, $method, $path, $callback, $requirments);
+        $this->routes->addRoute($name, $method, $path, $callback, $requirements);
     }
 
     /**
@@ -106,56 +95,56 @@ class Router implements RouterInterface, RouteCollectionInterface
     /**
      *{@inheritdoc}
      */
-    public function any($name, $path, Callable $callback, $requirments = null)
+    public function any($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->any($name, $path, $callback, $requirments);
+        $this->routes->any($name, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function except($name, $methods, $path, Callable $callback, $requirments = null)
+    public function except($name, $methods, $path, Callable $callback, $requirements = null)
     {
-        $this->route->except($name, $methods, $path, $callback, $requirments);
+        $this->route->except($name, $methods, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function get($name, $path, Callable $callback, $requirments = null)
+    public function get($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->get($name, $path, $callback, $requirments);
+        $this->routes->get($name, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function post($name, $path, Callable $callback, $requirments = null)
+    public function post($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->post($name, $path, $callback, $requirments);
+        $this->routes->post($name, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function put($name, $path, Callable $callback, $requirments = null)
+    public function put($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->put($name, $path, $callback, $requirments);
+        $this->routes->put($name, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function patch($name, $path, Callable $callback, $requirments = null)
+    public function patch($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->patch($name, $path, $callback, $requirments);
+        $this->routes->patch($name, $path, $callback, $requirements);
     }
 
     /**
      *{@inheritdoc}
      */
-    public function delete($name, $path, Callable $callback, $requirments = null)
+    public function delete($name, $path, Callable $callback, $requirements = null)
     {
-        $this->routes->delete($name, $path, $callback, $requirments);
+        $this->routes->delete($name, $path, $callback, $requirements);
     }
 }
