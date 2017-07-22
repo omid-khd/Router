@@ -151,7 +151,7 @@ class Route implements RouteInterface
      */
     protected function compileRoute()
     {
-        $pathStaticParts = preg_split('`{\w+}`', $this->path);
+        $pathStaticParts = preg_split('`\{\w+\}`', $this->path);
         $pathStaticParts = array_map('preg_quote', $pathStaticParts);
 
         $routeRegexPattern = $this->buildRegexPattern($pathStaticParts);
@@ -216,7 +216,7 @@ class Route implements RouteInterface
      */
     protected function extractParameters($path)
     {
-        $parameters = preg_match_all('`{(?P<parameters>\w+)}`', $path, $matches)
+        $parameters = preg_match_all('`\{(?P<parameters>\w+)\}`', $path, $matches)
                     ? $matches['parameters']
                     : null;
 
@@ -339,6 +339,6 @@ class Route implements RouteInterface
      */
     public function isStatic()
     {
-        return ((bool) preg_match('`{\w+}`', $this->path)) === false;;
+        return ((bool) preg_match('`\{\w+\}`', $this->path)) === false;;
     }
 }
